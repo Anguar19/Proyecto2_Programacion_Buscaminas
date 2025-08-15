@@ -56,11 +56,11 @@ public class PosicionCasilla {
       public void aumentarMinasAlrededor(){ //para recorrer todas las casiilas incrementable
           this.minasLados++;
       }
-      public boolean isAbierta() {
+      public boolean iscasillaabierta() {
         return casillaabierta;
     }
 
-    public void setAbierta(boolean abierta) {
+    public void setcasillaabierta(boolean casillaabierta) {
         this.casillaabierta = casillaabierta;
     }
 }
