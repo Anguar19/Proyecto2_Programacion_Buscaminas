@@ -8,6 +8,11 @@ package InterfazJuego;
  *
  * @author Frank
  */
+
+/**
+ * Interfaz gráfica del juego Buscaminas.
+ * Maneja la visualización del tablero, interacción del usuario y menús.
+ */
 import LogicaJuego.PosicionCasilla;
 import LogicaJuego.TableroJuego;
 import java.awt.*;
@@ -25,9 +30,9 @@ public class MinasFrame extends javax.swing.JFrame {
     int numColumnas=10;
     int numMinas=10;
     
-    JButton[][] botonesTablero;
+    JButton[][] botonesTablero;// Matriz de botones que representan el tablero
     
-    TableroJuego tableroBuscaminas;
+    TableroJuego tableroBuscaminas;// Lógica del juego
     
       // Estadísticas del juego
     private int juegosJugados = 0;
@@ -39,10 +44,10 @@ public class MinasFrame extends javax.swing.JFrame {
     private int minasRestantes;
     
     // Label para mostrar minas restantes
-    private JLabel lblMinasRestantes;
+    private JLabel lblMinasRestantes;// Muestra el contador de minas
     
-    /**
-     * Creates new form MinasFrame
+     /**
+     * Constructor que inicializa la interfaz
      */
     public MinasFrame() {
         initComponents();
@@ -52,20 +57,24 @@ public class MinasFrame extends javax.swing.JFrame {
          // Configurar acción para Nuevo Juego
     menuNuevoJuego.addActionListener(e -> juegoNuevo());
     }
-    
+    /**
+     * Configura propiedades básicas de la ventana
+     */
      private void configurarVentana() {
         setTitle("Buscaminas Proyecto 2");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
         
-        // Agregar label para minas restantes en la parte superior
+        // Configura el contador de minas
         lblMinasRestantes = new JLabel("Minas: " + numMinas);
         lblMinasRestantes.setFont(new Font("Arial", Font.BOLD, 14));
         lblMinasRestantes.setBounds(10, 5, 150, 20);
         getContentPane().add(lblMinasRestantes);
     }
-     
+     /**
+     * Muestra estadísticas del juego en un diálogo
+     */
     private void mostrarEstadisticas() {
         String mensaje = String.format(
             "=== ESTADÍSTICAS ===\n" +
@@ -92,7 +101,9 @@ public class MinasFrame extends javax.swing.JFrame {
             }
         }
     }
-    
+    /**
+     * Inicia un nuevo juego con la configuración actual
+     */
     private void juegoNuevo(){
         juegoActivo = true;
         minasRestantes = numMinas;
@@ -112,6 +123,9 @@ public class MinasFrame extends javax.swing.JFrame {
         }
     }
     
+    /**
+     * Configura los eventos del juego (victoria, derrota, casilla abierta)
+     */
     private void crearTableroBuscaminas(){
         tableroBuscaminas = new TableroJuego(numFilas, numColumnas, numMinas);
         
@@ -175,7 +189,9 @@ public class MinasFrame extends javax.swing.JFrame {
             }
         });
     }
-    
+    /**
+     * Pregunta al jugador si desea jugar nuevamente
+     */
     private void preguntarNuevoJuego() {
         mostrarEstadisticas();
         
@@ -193,7 +209,9 @@ public class MinasFrame extends javax.swing.JFrame {
             System.exit(0);
         }
     }
-    
+    /**
+     * Crea y configura los botones del tablero
+     */
      private void cargarControles() {
         int posXReferencia = 25;
         int posYReferencia = 35; // Ajustado para dejar espacio al contador
@@ -264,6 +282,7 @@ public class MinasFrame extends javax.swing.JFrame {
                 getContentPane().add(botonesTablero[a][b]);
             }
         }
+         // Ajusta el tamaño de la ventana según el tablero
         this.setSize(botonesTablero[numFilas-1][numColumnas-1].getX()+
                 botonesTablero[numFilas-1][numColumnas-1].getWidth()+30,
                 botonesTablero[numFilas-1][numColumnas-1].getY()+
@@ -276,7 +295,6 @@ public class MinasFrame extends javax.swing.JFrame {
         String[] coordenada=btn.getName().split(",");
         int posFila=Integer.parseInt(coordenada[0]);
         int posColumna=Integer.parseInt(coordenada[1]);
-        //JOptionPane.showMessageDialog(rootPane, posFila+","+posColumna);
         tableroBuscaminas.seleccionarCasilla(posFila, posColumna);
         
     }
@@ -341,8 +359,10 @@ public class MinasFrame extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // Métodos para manejar los menús
     private void menuTamanoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuTamanoActionPerformed
-         String input = JOptionPane.showInputDialog(
+        // Implementación para cambiar el tamaño del tablero 
+        String input = JOptionPane.showInputDialog(
         this,
         "Digite tamaño de la matriz (n×n):\n(Debe ser mayor a 2)",
         "Configurar Tamaño",
@@ -376,7 +396,8 @@ public class MinasFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_menuTamanoActionPerformed
 
     private void menuNumeroMinasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuNumeroMinasActionPerformed
-       String input = JOptionPane.showInputDialog(
+       // Implementación para cambiar el número de minas
+        String input = JOptionPane.showInputDialog(
         this,
         "Digite número de Minas:\n(Máximo: " + (numFilas * numColumnas - 1) + ")",
         "Configurar Minas",

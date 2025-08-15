@@ -13,18 +13,34 @@ import java.util.function.Consumer;
  *
  * @author Anguar Alberto Rodriguez Fonseca
  */
+
+/**
+ * Contiene la lógica principal del juego Buscaminas.
+ * Maneja la creación del tablero, colocación de minas, apertura de casillas
+ * y verificación de victoria/derrota.
+ */
+
 public class TableroJuego {
-    PosicionCasilla[][] Casillas;
-    int CantiFilas;
-    int CantiColumnas;
-    int CantiMinas;
+    PosicionCasilla[][] Casillas; // Matriz que representa el tablero
+    int CantiFilas;  // Número de filas del tablero
+    int CantiColumnas; // Número de columnas del tablero
+    int CantiMinas;  // Número total de minas
     
-    int numCasillasAbiertas;
-    boolean generacionMinas;
+    int numCasillasAbiertas; // Contador de casillas abiertas
+    boolean generacionMinas; // Indica si las minas han sido colocadas
     
+    // Eventos para manejar el flujo del juego
     private Consumer<List<PosicionCasilla>> eventoPartidaPerdida;
     private Consumer<List<PosicionCasilla>> eventoPartidaGanada;
     private Consumer<PosicionCasilla> eventoCasillaAbierta;
+    
+    
+    /**
+     * Constructor que inicializa el tablero con las dimensiones especificadas
+     * @param CantiFilas Número de filas
+     * @param CantiColumnas Número de columnas
+     * @param CantiMinas Número de minas
+     */
     
     public TableroJuego(int CantiFilas, int CantiColumnas, int CantiMinas) {
         this.CantiFilas = CantiFilas;
@@ -34,6 +50,10 @@ public class TableroJuego {
         this.generacionMinas = false;
     }
     
+    /**
+     * Inicializa la matriz de casillas
+     */
+
     public void InicioCasillas() {
         Casillas = new PosicionCasilla[this.CantiFilas][this.CantiColumnas];
         for (int a = 0; a < Casillas.length; a++) {
@@ -43,11 +63,19 @@ public class TableroJuego {
         }
     }
     
+     /**
+     * Coloca minas aleatoriamente en el tablero, evitando la casilla inicial
+     * @param filaIgnorar Fila de la casilla inicial (no contendrá mina)
+     * @param columnaIgnorar Columna de la casilla inicial (no contendrá mina)
+     */
+    
     private void CrearMinas(int filaIgnorar, int columnaIgnorar) {
         int minasCreadas = 0;
         while (minasCreadas != CantiMinas) {
+            // Genera posiciones aleatorias hasta encontrar una válida
             int ubiTemFila;
             int ubiTemColumna;
+            // Verifica que no sea la casilla inicial y que no tenga mina
             do {
                 ubiTemFila = (int) (Math.random() * Casillas.length);
                 ubiTemColumna = (int) (Math.random() * Casillas[0].length);
@@ -62,6 +90,10 @@ public class TableroJuego {
         //this.impresionTablero();//
     }
     
+     /**
+     * Calcula el número de minas adyacentes para cada casilla
+     */
+    
     private void actualizarNumeroMinasAlrededor() {
         for (int a = 0; a < Casillas.length; a++) {
             for (int b = 0; b < Casillas[a].length; b++) {
@@ -73,11 +105,20 @@ public class TableroJuego {
         }
     }
     
+    /**
+     * Obtiene las casillas adyacentes a una posición dada
+     * @param posFila Fila de la casilla central
+     * @param posColumna Columna de la casilla central
+     * @return Lista de casillas adyacentes válidas
+     */
+    
     private List<PosicionCasilla> obtenerCasillasAlrededor(int posFila, int posColumna) {
         List<PosicionCasilla> listaCasillas = new LinkedList<>();
+        // Verifica las 8 direcciones posibles
         for (int a = 0; a < 8; a++) {
             int tmpPosFila = posFila;
             int tmpPosColumna = posColumna;
+            // Ajusta coordenadas según la dirección
             switch (a) {
                 case 0: tmpPosFila--; break; //Arriba
                 case 1: tmpPosFila--; tmpPosColumna++; break; //Arriba Derecha
@@ -88,7 +129,7 @@ public class TableroJuego {
                 case 6: tmpPosColumna--; break; //Izquierda
                 case 7: tmpPosFila--; tmpPosColumna--; break; //Izquierda Arriba
             }
-            
+            // Verifica que las coordenadas estén dentro del tablero
             if (tmpPosFila >= 0 && tmpPosFila < this.Casillas.length
                     && tmpPosColumna >= 0 && tmpPosColumna < this.Casillas[0].length) {
                 listaCasillas.add(this.Casillas[tmpPosFila][tmpPosColumna]);
@@ -109,16 +150,24 @@ public class TableroJuego {
         return casillasConMinas;
     }
     
+    /**
+     * Maneja la selección de una casilla por el jugador
+     * @param posFila Fila de la casilla seleccionada
+     * @param posColumna Columna de la casilla seleccionada
+     */
+    
     public void seleccionarCasilla(int posFila, int posColumna) {
         if (!this.generacionMinas) {
             this.CrearMinas(posFila, posColumna);
         }
-        
+         // Notifica que la casilla fue abierta
         eventoCasillaAbierta.accept(this.Casillas[posFila][posColumna]);
         
         if (this.Casillas[posFila][posColumna].isMina()) {
+           // Caso mina - partida perdida 
             eventoPartidaPerdida.accept(obtenerCasillasConMinas());
         } else if (this.Casillas[posFila][posColumna].getMinasLados() == 0) {
+             // Caso casilla vacía - abre recursivamente casillas adyacentes
             marcarCasillaAbierta(posFila, posColumna);
             List<PosicionCasilla> casillasAlrededor = obtenerCasillasAlrededor(posFila, posColumna);
             for (PosicionCasilla casilla : casillasAlrededor) {
@@ -127,9 +176,10 @@ public class TableroJuego {
                 }
             }
         } else {
+            // Caso casilla con número - solo abre esta
             marcarCasillaAbierta(posFila, posColumna);
         }
-        
+        // Verifica si el jugador ganó
         if (partidaGanada()) {
             eventoPartidaGanada.accept(obtenerCasillasConMinas());
         }
@@ -142,6 +192,10 @@ public class TableroJuego {
         }
     }
     
+    /**
+     * Verifica si el jugador ha ganado (todas las casillas sin mina abiertas)
+     * @return true si el jugador ganó, false en caso contrario
+     */
     boolean partidaGanada() {
         return numCasillasAbiertas >= (CantiFilas * CantiColumnas) - CantiMinas;
     }

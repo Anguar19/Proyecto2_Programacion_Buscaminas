@@ -8,21 +8,38 @@ package LogicaJuego;
  *
  * @author Frank
  */
+
+/**
+ * Representa una casilla individual en el tablero de Buscaminas.
+ * Almacena información sobre su posición, si contiene mina, número de minas adyacentes
+ * y si ha sido abierta por el jugador.
+ */
+
 public class PosicionCasilla {
-    private int ubicacionFila; // LA POSICION DE LA CASILLA EN LA FILA
-    private boolean Mina; // SI LA CASILLA TIENE UNA MINA 
-    private int ubicacionColumna; // LA POSICION DE LA CASILLA EN LA COLUMNA
-    private int minasLados; // minas alrededor de la casilla
-    private boolean casillaabierta; // si la casilla esta abierta ono 
+    private int ubicacionFila; // Posición vertical en el tablero
+    private boolean Mina; // Indica si la casilla contiene una mina
+    private int ubicacionColumna; // Posición horizontal en el tablero
+    private int minasLados;  // Número de minas en casillas adyacentes
+    private boolean casillaabierta; // Indica si la casilla ha sido revelada
      
-//CONSTRUCTOR DE UBICAIONfILA Y UBICACIONCOLUMNA, CON ESTO SE OBTINE LA COORDENADADA DE LA CASILLA
+ /**
+     * Constructor que inicializa una casilla con sus coordenadas
+     * @param ubicacionFila Fila donde se encuentra la casilla
+     * @param ubicacionColumna Columna donde se encuentra la casilla
+     */
+    
     public PosicionCasilla(int ubicacionFila, int ubicacionColumna) {
         this.ubicacionFila = ubicacionFila;
         this.ubicacionColumna = ubicacionColumna;
     }
     
      
-//GETTERS Y SETTERS
+ // Métodos getters y setters para acceder a los atributos
+    
+    /**
+     * Incrementa el contador de minas adyacentes
+     */
+    
     public int getUbicacionFila() {
         return ubicacionFila;
     }
