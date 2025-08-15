@@ -46,11 +46,15 @@ public class MinasFrame extends javax.swing.JFrame {
      */
     public MinasFrame() {
         initComponents();
-        juegoNuevo();
+        configurarVentana();
+        juegoNuevo();;
+        
+         // Configurar acción para Nuevo Juego
+    menuNuevoJuego.addActionListener(e -> juegoNuevo());
     }
     
      private void configurarVentana() {
-        setTitle("Buscaminas - UTN");
+        setTitle("Buscaminas Proyecto 2");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setResizable(false);
         setLocationRelativeTo(null);
@@ -90,6 +94,9 @@ public class MinasFrame extends javax.swing.JFrame {
     }
     
     private void juegoNuevo(){
+        juegoActivo = true;
+        minasRestantes = numMinas;
+        actualizarContadorMinas();
         descargarControles();
         cargarControles();
         crearTableroBuscaminas();
@@ -112,6 +119,8 @@ public class MinasFrame extends javax.swing.JFrame {
         tableroBuscaminas.setEventoPartidaPerdida(new Consumer<List<PosicionCasilla>>() {
             @Override
             public void accept(List<PosicionCasilla> t) {
+                juegoActivo = false;
+                juegosPerdidos++;
                 for(PosicionCasilla casillaConMina: t){
                     JButton boton = botonesTablero[casillaConMina.getUbicacionFila()][casillaConMina.getUbicacionColumna()];
                     boton.setText("💣"); // Emoji de bomba
@@ -119,6 +128,7 @@ public class MinasFrame extends javax.swing.JFrame {
                     boton.setBackground(Color.RED); // Fondo rojo para resaltar
                     boton.setForeground(Color.WHITE); // Texto blanco para contraste
                 }
+                preguntarNuevoJuego();
             }
         });
         
@@ -126,6 +136,8 @@ public class MinasFrame extends javax.swing.JFrame {
         tableroBuscaminas.setEventoPartidaGanada(new Consumer<List<PosicionCasilla>>() {
             @Override
             public void accept(List<PosicionCasilla> t) {
+                 juegoActivo = false;
+                 juegosGanados++;
                 for(PosicionCasilla casillaConMina: t){
                     JButton boton = botonesTablero[casillaConMina.getUbicacionFila()][casillaConMina.getUbicacionColumna()];
                     boton.setText("🎉"); // Emoji de celebración
@@ -133,6 +145,7 @@ public class MinasFrame extends javax.swing.JFrame {
                     boton.setBackground(Color.GREEN); // Fondo verde
                     boton.setForeground(Color.WHITE); // Texto blanco
                 }
+                preguntarNuevoJuego();
             }
         });
         
@@ -329,16 +342,72 @@ public class MinasFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void menuTamanoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuTamanoActionPerformed
-        int num=Integer.parseInt(JOptionPane.showInputDialog("Digite tamaño de la matriz, n*n"));
-        this.numFilas=num;
-        this.numColumnas=num;
-        juegoNuevo();
+         String input = JOptionPane.showInputDialog(
+        this,
+        "Digite tamaño de la matriz (n×n):\n(Debe ser mayor a 2)",
+        "Configurar Tamaño",
+        JOptionPane.QUESTION_MESSAGE
+    );
+    
+    if (input != null) {
+        try {
+            int num = Integer.parseInt(input);
+            if (num > 2) {
+                this.numFilas = num;
+                this.numColumnas = num;
+                juegoNuevo();
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "El tamaño debe ser mayor a 2",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Por favor ingrese un número válido",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
     }//GEN-LAST:event_menuTamanoActionPerformed
 
     private void menuNumeroMinasActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_menuNumeroMinasActionPerformed
-       int num=Integer.parseInt(JOptionPane.showInputDialog("Digite número de Minas"));
-        this.numMinas=num;
-        juegoNuevo();
+       String input = JOptionPane.showInputDialog(
+        this,
+        "Digite número de Minas:\n(Máximo: " + (numFilas * numColumnas - 1) + ")",
+        "Configurar Minas",
+        JOptionPane.QUESTION_MESSAGE
+    );
+    
+    if (input != null) {
+        try {
+            int num = Integer.parseInt(input);
+            int maxMinas = numFilas * numColumnas - 1;
+            
+            if (num > 0 && num <= maxMinas) {
+                this.numMinas = num;
+                juegoNuevo();
+            } else {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "El número de minas debe estar entre 1 y " + maxMinas,
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(
+                this,
+                "Por favor ingrese un número válido",
+                "Error",
+                JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     }//GEN-LAST:event_menuNumeroMinasActionPerformed
 

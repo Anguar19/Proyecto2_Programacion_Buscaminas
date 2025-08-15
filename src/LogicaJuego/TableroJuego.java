@@ -59,7 +59,7 @@ public class TableroJuego {
         }
         actualizarNumeroMinasAlrededor();
         this.generacionMinas = true;
-        this.impresionTablero();
+        //this.impresionTablero();//
     }
     
     private void actualizarNumeroMinasAlrededor() {
