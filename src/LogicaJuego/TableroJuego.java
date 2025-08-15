@@ -43,5 +43,14 @@ public class TableroJuego {
             }
         }
     }
+    
+    private void impresionTablero() {
+        for (int a = 0; a < Casillas.length; a++) {
+            for (int b = 0; b < Casillas[a].length; b++) {
+                System.out.print(Casillas[a][b].isMina() ? "*" : "0");
+            }
+            System.out.println();
+        }
+    }
 
 }
