@@ -4,6 +4,8 @@
  */
 package LogicaJuego;
 
+import java.util.List;
+
 /**
  *
  * @author Anguar Alberto Rodriguez Fonseca
@@ -44,7 +46,7 @@ public class TableroJuego {
         }
     }
     
-    private void impresionTablero() {
+    public void impresionTablero() {
         for (int a = 0; a < Casillas.length; a++) {
             for (int b = 0; b < Casillas[a].length; b++) {
                 System.out.print(Casillas[a][b].isMina() ? "*" : "0");
@@ -53,4 +55,22 @@ public class TableroJuego {
         }
     }
 
+    public void darPista(){
+        for (int i = 0; i < Casillas.length; i++) {
+            for (int j = 0; j < Casillas[i].length; j++) {
+                System.out.print(Casillas[i][j].getMinasLados());
+            }
+            System.out.println("");
+        }
+    }
+    
+    public void minasActualizadas(){
+        for (int i = 0; i < Casillas.length; i++) {
+            for (int j = 0; j < Casillas[i].length; j++) {
+                if (Casillas[i][j].isMina()) {
+                    
+                }
+            }
+        }
+    }
 }
