@@ -6,7 +6,7 @@ package LogicaJuego;
 
 /**
  *
- * @author Anguar Alberto Rodriguez Fonseca
+ * @author Frank
  */
 public class PosicionCasilla {
     private int ubicacionFila; // LA POSICION DE LA CASILLA EN LA FILA
