@@ -12,15 +12,8 @@ public class PosicionCasilla {
     private int ubicacionFila; // LA POSICION DE LA CASILLA EN LA FILA
     private boolean Mina; // SI LA CASILLA TIENE UNA MINA 
     private int ubicacionColumna; // LA POSICION DE LA CASILLA EN LA COLUMNA
-    private int minasLados; 
-
-    public int getMinasLados() {
-        return minasLados;
-    }
-
-    public void setMinasLados(int minasLados) {
-        this.minasLados = minasLados;
-    }
+    private int minasLados; // minas alrededor de la casilla
+    private boolean casillaabierta; // si la casilla esta abierta ono 
      
 //CONSTRUCTOR DE UBICAIONfILA Y UBICACIONCOLUMNA, CON ESTO SE OBTINE LA COORDENADADA DE LA CASILLA
     public PosicionCasilla(int ubicacionFila, int ubicacionColumna) {
@@ -53,8 +46,21 @@ public class PosicionCasilla {
     public void setUbicacionColumna(int ubicacionColumna) {
         this.ubicacionColumna = ubicacionColumna;
     }
-            
-      public void aumentarMinasAlrededor(){ // metodo para recorrer todas las casiilas incrementable
+        public int getMinasLados() {
+        return minasLados;
+    }
+
+    public void setMinasLados(int minasLados) {
+        this.minasLados = minasLados;
+    }        
+      public void aumentarMinasAlrededor(){ //para recorrer todas las casiilas incrementable
           this.minasLados++;
       }
+      public boolean isAbierta() {
+        return casillaabierta;
+    }
+
+    public void setAbierta(boolean abierta) {
+        this.casillaabierta = casillaabierta;
+    }
 }
