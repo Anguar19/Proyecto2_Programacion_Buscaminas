@@ -13,6 +13,8 @@ import LogicaJuego.TableroJuego;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.function.Consumer;
 import javax.swing.*;
@@ -27,6 +29,18 @@ public class MinasFrame extends javax.swing.JFrame {
     
     TableroJuego tableroBuscaminas;
     
+      // Estadísticas del juego
+    private int juegosJugados = 0;
+    private int juegosGanados = 0;
+    private int juegosPerdidos = 0;
+    
+     // Estado del juego
+    private boolean juegoActivo = true;
+    private int minasRestantes;
+    
+    // Label para mostrar minas restantes
+    private JLabel lblMinasRestantes;
+    
     /**
      * Creates new form MinasFrame
      */
@@ -35,6 +49,34 @@ public class MinasFrame extends javax.swing.JFrame {
         juegoNuevo();
     }
     
+     private void configurarVentana() {
+        setTitle("Buscaminas - UTN");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setResizable(false);
+        setLocationRelativeTo(null);
+        
+        // Agregar label para minas restantes en la parte superior
+        lblMinasRestantes = new JLabel("Minas: " + numMinas);
+        lblMinasRestantes.setFont(new Font("Arial", Font.BOLD, 14));
+        lblMinasRestantes.setBounds(10, 5, 150, 20);
+        getContentPane().add(lblMinasRestantes);
+    }
+     
+    private void mostrarEstadisticas() {
+        String mensaje = String.format(
+            "=== ESTADÍSTICAS ===\n" +
+            "Juegos Jugados: %d\n" +
+            "Juegos Ganados: %d\n" +
+            "Juegos Perdidos: %d\n" +
+            "Porcentaje de Victoria: %.1f%%",
+            juegosJugados,
+            juegosGanados,
+            juegosPerdidos,
+            juegosJugados > 0 ? (juegosGanados * 100.0 / juegosJugados) : 0
+        );
+        JOptionPane.showMessageDialog(this, mensaje, "Estadísticas", JOptionPane.INFORMATION_MESSAGE);
+    }  
+     
     void descargarControles(){
         if (botonesTablero!=null){
             for (int i = 0; i < botonesTablero.length; i++) {
@@ -52,6 +94,15 @@ public class MinasFrame extends javax.swing.JFrame {
         cargarControles();
         crearTableroBuscaminas();
         repaint();
+    }
+    
+     /**
+     * Actualiza el contador de minas restantes
+     */
+    private void actualizarContadorMinas() {
+        if (lblMinasRestantes != null) {
+            lblMinasRestantes.setText("Minas: " + minasRestantes);
+        }
     }
     
     private void crearTableroBuscaminas(){
@@ -112,40 +163,91 @@ public class MinasFrame extends javax.swing.JFrame {
         });
     }
     
-    private void cargarControles(){
+    private void preguntarNuevoJuego() {
+        mostrarEstadisticas();
         
-        int posXReferencia=25;
-        int posYReferencia=25;
-        int anchoControl=30;
-        int altoControl=30;
+        int respuesta = JOptionPane.showConfirmDialog(
+            this,
+            "¿Deseas jugar de nuevo?",
+            "Nuevo Juego",
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (respuesta == JOptionPane.YES_OPTION) {
+            juegoNuevo();
+        } else {
+            System.exit(0);
+        }
+    }
+    
+     private void cargarControles() {
+        int posXReferencia = 25;
+        int posYReferencia = 35; // Ajustado para dejar espacio al contador
+        int anchoControl = 30;
+        int altoControl = 30;
         
         botonesTablero = new JButton[numFilas][numColumnas];
+        
         for (int i = 0; i < botonesTablero.length; i++) {
             for (int j = 0; j < botonesTablero[i].length; j++) {
-                botonesTablero[i][j]=new JButton();
-                botonesTablero[i][j].setName(i+","+j);
-                botonesTablero[i][j].setBorder(null);
-                if (i==0 && j==0){
-                    botonesTablero[i][j].setBounds(posXReferencia, 
-                            posYReferencia, anchoControl, altoControl);
-                    
-                }else if (i==0 && j!=0){
+                botonesTablero[i][j] = new JButton();
+                botonesTablero[i][j].setName(i + "," + j);
+                botonesTablero[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                botonesTablero[i][j].setBackground(Color.LIGHT_GRAY);
+                botonesTablero[i][j].setFocusPainted(false);
+                
+                // Calcular posición del botón
+                if (i == 0 && j == 0) {
+                    botonesTablero[i][j].setBounds(posXReferencia, posYReferencia, anchoControl, altoControl);
+                } else if (i == 0 && j != 0) {
                     botonesTablero[i][j].setBounds(
-                            botonesTablero[i][j-1].getX()+botonesTablero[i][j-1].getWidth(), 
-                            posYReferencia, anchoControl, altoControl);
-                }else{
+                        botonesTablero[i][j-1].getX() + botonesTablero[i][j-1].getWidth(),
+                        posYReferencia, anchoControl, altoControl);
+                } else {
                     botonesTablero[i][j].setBounds(
-                            botonesTablero[i-1][j].getX(), 
-                            botonesTablero[i-1][j].getY()+botonesTablero[i-1][j].getHeight(), 
-                            anchoControl, altoControl);                    
+                        botonesTablero[i-1][j].getX(),
+                        botonesTablero[i-1][j].getY() + botonesTablero[i-1][j].getHeight(),
+                        anchoControl, altoControl);
                 }
-                botonesTablero[i][j].addActionListener(new ActionListener() {
+                
+                // Agregar listeners para click izquierdo y derecho
+                final int fila = i;
+                final int columna = j;
+                
+                botonesTablero[i][j].addMouseListener(new MouseAdapter() {
                     @Override
-                    public void actionPerformed(ActionEvent e) {
-                        btnClick(e);
+                    public void mouseClicked(MouseEvent e) {
+                        if (!juegoActivo) return;
+                        
+                        JButton boton = (JButton) e.getSource();
+                        
+                        if (SwingUtilities.isLeftMouseButton(e)) {
+                            // Click izquierdo - destapar casilla
+                            if (!boton.getText().equals("🚩")) {
+                                tableroBuscaminas.seleccionarCasilla(fila, columna);
+                            }
+                        } else if (SwingUtilities.isRightMouseButton(e)) {
+                            // Click derecho - marcar/desmarcar
+                            if (boton.isEnabled()) {
+                                if (boton.getText().equals("🚩")) {
+                                    // Desmarcar
+                                    boton.setText("");
+                                    boton.setBackground(Color.LIGHT_GRAY);
+                                    minasRestantes++;
+                                } else if (minasRestantes > 0) {
+                                    // Marcar
+                                    boton.setText("🚩");
+                                    boton.setFont(new Font("Segoe UI Emoji", Font.BOLD, 14));
+                                    boton.setBackground(Color.YELLOW);
+                                    minasRestantes--;
+                                }
+                                actualizarContadorMinas();
+                            }
+                        }
                     }
-
                 });
+                
                 getContentPane().add(botonesTablero[i][j]);
             }
         }
@@ -165,6 +267,7 @@ public class MinasFrame extends javax.swing.JFrame {
         tableroBuscaminas.seleccionarCasilla(posFila, posColumna);
         
     }
+    
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -239,6 +342,86 @@ public class MinasFrame extends javax.swing.JFrame {
 
     }//GEN-LAST:event_menuNumeroMinasActionPerformed
 
+     private void menuTamanoActionPerformed() {
+        String input = JOptionPane.showInputDialog(
+            this,
+            "Digite tamaño de la matriz (n×n):\n(Debe ser mayor a 2)",
+            "Configurar Tamaño",
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (input != null) {
+            try {
+                int num = Integer.parseInt(input);
+                if (num > 2) {
+                    this.numFilas = num;
+                    this.numColumnas = num;
+                    this.numMinas = 2 * num; // 2*L según requerimiento
+                    juegoNuevo();
+                } else {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "El tamaño debe ser mayor a 2",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Por favor ingrese un número válido",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+    }
+    
+    /**
+     * Acción del menú Número de Minas
+     */
+    private void menuNumeroMinasActionPerformed() {
+        String input = JOptionPane.showInputDialog(
+            this,
+            "Digite número de Minas:\n(Máximo: " + (numFilas * numColumnas - 1) + ")",
+            "Configurar Minas",
+            JOptionPane.QUESTION_MESSAGE
+        );
+        
+        if (input != null) {
+            try {
+                int num = Integer.parseInt(input);
+                int maxMinas = numFilas * numColumnas - 1;
+                
+                if (num > 0 && num <= maxMinas) {
+                    this.numMinas = num;
+                    juegoNuevo();
+                } else {
+                    JOptionPane.showMessageDialog(
+                        this,
+                        "El número de minas debe estar entre 1 y " + maxMinas,
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Por favor ingrese un número válido",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+                );
+            }
+        }
+    }
+    
+    /**
+     * Acción del menú Salir
+     */
+    private void menuSalirActionPerformed(java.awt.event.ActionEvent evt) {
+        mostrarEstadisticas();
+        System.exit(0);
+    }
     /**
      * @param args the command line arguments
      */

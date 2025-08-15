@@ -177,12 +177,7 @@ public class TableroJuego {
         this.eventoPartidaGanada = eventoPartidaGanada;
     }
     
-    public static void main(String[] args) {
-        TableroJuego tablero = new TableroJuego(5, 5, 5);
-        tablero.impresionTablero();
-        System.out.println("---");
-        tablero.imprimirPistas();
-    }
+    
     
 }
 
