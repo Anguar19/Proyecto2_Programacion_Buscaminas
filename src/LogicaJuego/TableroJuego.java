@@ -4,7 +4,10 @@
  */
 package LogicaJuego;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
+
 
 /**
  *
@@ -12,20 +15,26 @@ import java.util.List;
  */
 public class TableroJuego {
     PosicionCasilla[][] Casillas;
+    int CantiFilas;
+    int CantiColumnas;
+    int CantiMinas;
     
-    public int CantiFilas;
-    public int CantiColumnas;
-    public int CantiMinas;
+    int numCasillasAbiertas;
+    boolean generacionMinas;
     
-
+    private Consumer<List<PosicionCasilla>> eventoPartidaPerdida;
+    private Consumer<List<PosicionCasilla>> eventoPartidaGanada;
+    private Consumer<PosicionCasilla> eventoCasillaAbierta;
     
-    public TableroJuego(int cantidadFilas, int cantidadColumnas, int cantidadMinas) {
-        this.CantiFilas = cantidadFilas;
-        this.CantiColumnas = cantidadColumnas;
-        this.CantiMinas = cantidadMinas;
+    public TableroJuego(int CantiFilas, int CantiColumnas, int CantiMinas) {
+        this.CantiFilas = CantiFilas;
+        this.CantiColumnas = CantiColumnas;
+        this.CantiMinas = CantiMinas;
+        this.InicioCasillas();
+        this.generacionMinas = false;
     }
     
-    public void iniciarCasilla(){
+    public void InicioCasillas() {
         Casillas = new PosicionCasilla[this.CantiFilas][this.CantiColumnas];
         for (int a = 0; a < Casillas.length; a++) {
             for (int b = 0; b < Casillas[a].length; b++) {
@@ -34,19 +43,110 @@ public class TableroJuego {
         }
     }
     
-    public void CrearMinas(){
+    private void CrearMinas(int filaIgnorar, int columnaIgnorar) {
         int minasCreadas = 0;
         while (minasCreadas != CantiMinas) {
-            int ubiTemFila = (int) (Math.random() * Casillas.length);
-            int ubiTemColumna = (int) (Math.random() * Casillas[0].length);
-            if (!Casillas[ubiTemFila][ubiTemColumna].isMina()) {
-                Casillas[ubiTemFila][ubiTemColumna].setMina(true);
-                minasCreadas++;
+            int ubiTemFila;
+            int ubiTemColumna;
+            do {
+                ubiTemFila = (int) (Math.random() * Casillas.length);
+                ubiTemColumna = (int) (Math.random() * Casillas[0].length);
+            } while ((ubiTemFila == filaIgnorar && ubiTemColumna == columnaIgnorar)
+                    || Casillas[ubiTemFila][ubiTemColumna].isMina());
+            
+            Casillas[ubiTemFila][ubiTemColumna].setMina(true);
+            minasCreadas++;
+        }
+        actualizarNumeroMinasAlrededor();
+        this.generacionMinas = true;
+        this.impresionTablero();
+    }
+    
+    private void actualizarNumeroMinasAlrededor() {
+        for (int a = 0; a < Casillas.length; a++) {
+            for (int b = 0; b < Casillas[a].length; b++) {
+                if (Casillas[a][b].isMina()) {
+                    List<PosicionCasilla> casillasAlrededor = obtenerCasillasAlrededor(a, b);
+                    casillasAlrededor.forEach((c) -> c.aumentarMinasAlrededor());
+                }
             }
         }
     }
     
-    public void impresionTablero() {
+    private List<PosicionCasilla> obtenerCasillasAlrededor(int posFila, int posColumna) {
+        List<PosicionCasilla> listaCasillas = new LinkedList<>();
+        for (int i = 0; i < 8; i++) {
+            int tmpPosFila = posFila;
+            int tmpPosColumna = posColumna;
+            switch (i) {
+                case 0: tmpPosFila--; break; //Arriba
+                case 1: tmpPosFila--; tmpPosColumna++; break; //Arriba Derecha
+                case 2: tmpPosColumna++; break; //Derecha
+                case 3: tmpPosColumna++; tmpPosFila++; break; //Derecha Abajo
+                case 4: tmpPosFila++; break; //Abajo
+                case 5: tmpPosFila++; tmpPosColumna--; break; //Abajo Izquierda
+                case 6: tmpPosColumna--; break; //Izquierda
+                case 7: tmpPosFila--; tmpPosColumna--; break; //Izquierda Arriba
+            }
+            
+            if (tmpPosFila >= 0 && tmpPosFila < this.Casillas.length
+                    && tmpPosColumna >= 0 && tmpPosColumna < this.Casillas[0].length) {
+                listaCasillas.add(this.Casillas[tmpPosFila][tmpPosColumna]);
+            }
+        }
+        return listaCasillas;
+    }
+    
+    List<PosicionCasilla> obtenerCasillasConMinas() {
+        List<PosicionCasilla> casillasConMinas = new LinkedList<>();
+        for (int a = 0; a < Casillas.length; a++) {
+            for (int b = 0; b < Casillas[a].length; b++) {
+                if (Casillas[a][b].isMina()) {
+                    casillasConMinas.add(Casillas[a][b]);
+                }
+            }
+        }
+        return casillasConMinas;
+    }
+    
+    public void seleccionarCasilla(int posFila, int posColumna) {
+        if (!this.generacionMinas) {
+            this.CrearMinas(posFila, posColumna);
+        }
+        
+        eventoCasillaAbierta.accept(this.Casillas[posFila][posColumna]);
+        
+        if (this.Casillas[posFila][posColumna].isMina()) {
+            eventoPartidaPerdida.accept(obtenerCasillasConMinas());
+        } else if (this.Casillas[posFila][posColumna].getMinasLados() == 0) {
+            marcarCasillaAbierta(posFila, posColumna);
+            List<PosicionCasilla> casillasAlrededor = obtenerCasillasAlrededor(posFila, posColumna);
+            for (PosicionCasilla casilla : casillasAlrededor) {
+                if (!casilla.iscasillaabierta()) {
+                    seleccionarCasilla(casilla.getUbicacionFila(), casilla.getUbicacionColumna());
+                }
+            }
+        } else {
+            marcarCasillaAbierta(posFila, posColumna);
+        }
+        
+        if (partidaGanada()) {
+            eventoPartidaGanada.accept(obtenerCasillasConMinas());
+        }
+    }
+    
+    void marcarCasillaAbierta(int posFila, int posColumna) {
+        if (!this.Casillas[posFila][posColumna].iscasillaabierta()) {
+            numCasillasAbiertas++;
+            this.Casillas[posFila][posColumna].setcasillaabierta(true);
+        }
+    }
+    
+    boolean partidaGanada() {
+        return numCasillasAbiertas >= (CantiFilas * CantiColumnas) - CantiMinas;
+    }
+    
+    private void impresionTablero() {
         for (int a = 0; a < Casillas.length; a++) {
             for (int b = 0; b < Casillas[a].length; b++) {
                 System.out.print(Casillas[a][b].isMina() ? "*" : "0");
@@ -54,23 +154,35 @@ public class TableroJuego {
             System.out.println();
         }
     }
-
-    public void darPista(){
-        for (int i = 0; i < Casillas.length; i++) {
-            for (int j = 0; j < Casillas[i].length; j++) {
-                System.out.print(Casillas[i][j].getMinasLados());
+    
+    private void imprimirPistas() {
+        for (int a = 0; a < Casillas.length; a++) {
+            for (int b = 0; b < Casillas[a].length; b++) {
+                System.out.print(Casillas[a][b].getMinasLados());
             }
-            System.out.println("");
+            System.out.println();
         }
     }
     
-    public void minasActualizadas(){
-        for (int i = 0; i < Casillas.length; i++) {
-            for (int j = 0; j < Casillas[i].length; j++) {
-                if (Casillas[i][j].isMina()) {
-                    
-                }
-            }
-        }
+    // Setters para los eventos
+    public void setEventoPartidaPerdida(Consumer<List<PosicionCasilla>> eventoPartidaPerdida) {
+        this.eventoPartidaPerdida = eventoPartidaPerdida;
     }
+    
+    public void setEventoCasillaAbierta(Consumer<PosicionCasilla> eventoCasillaAbierta) {
+        this.eventoCasillaAbierta = eventoCasillaAbierta;
+    }
+    
+    public void setEventoPartidaGanada(Consumer<List<PosicionCasilla>> eventoPartidaGanada) {
+        this.eventoPartidaGanada = eventoPartidaGanada;
+    }
+    
+    public static void main(String[] args) {
+        TableroJuego tablero = new TableroJuego(5, 5, 5);
+        tablero.impresionTablero();
+        System.out.println("---");
+        tablero.imprimirPistas();
+    }
+    
 }
+
