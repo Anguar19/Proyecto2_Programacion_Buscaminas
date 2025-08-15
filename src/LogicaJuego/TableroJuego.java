@@ -75,10 +75,10 @@ public class TableroJuego {
     
     private List<PosicionCasilla> obtenerCasillasAlrededor(int posFila, int posColumna) {
         List<PosicionCasilla> listaCasillas = new LinkedList<>();
-        for (int i = 0; i < 8; i++) {
+        for (int a = 0; a < 8; a++) {
             int tmpPosFila = posFila;
             int tmpPosColumna = posColumna;
-            switch (i) {
+            switch (a) {
                 case 0: tmpPosFila--; break; //Arriba
                 case 1: tmpPosFila--; tmpPosColumna++; break; //Arriba Derecha
                 case 2: tmpPosColumna++; break; //Derecha

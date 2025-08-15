@@ -83,10 +83,10 @@ public class MinasFrame extends javax.swing.JFrame {
      
     void descargarControles(){
         if (botonesTablero!=null){
-            for (int i = 0; i < botonesTablero.length; i++) {
-                for (int j = 0; j < botonesTablero[i].length; j++) {
-                    if (botonesTablero[i][j]!=null){
-                        getContentPane().remove(botonesTablero[i][j]);
+            for (int a = 0; a < botonesTablero.length; a++) {
+                for (int b = 0; b < botonesTablero[a].length; b++) {
+                    if (botonesTablero[a][b]!=null){
+                        getContentPane().remove(botonesTablero[a][b]);
                     }
                 }
             }
@@ -202,33 +202,33 @@ public class MinasFrame extends javax.swing.JFrame {
         
         botonesTablero = new JButton[numFilas][numColumnas];
         
-        for (int i = 0; i < botonesTablero.length; i++) {
-            for (int j = 0; j < botonesTablero[i].length; j++) {
-                botonesTablero[i][j] = new JButton();
-                botonesTablero[i][j].setName(i + "," + j);
-                botonesTablero[i][j].setBorder(BorderFactory.createLineBorder(Color.GRAY));
-                botonesTablero[i][j].setBackground(Color.LIGHT_GRAY);
-                botonesTablero[i][j].setFocusPainted(false);
+        for (int a = 0; a < botonesTablero.length; a++) {
+            for (int b = 0; b < botonesTablero[a].length; b++) {
+                botonesTablero[a][b] = new JButton();
+                botonesTablero[a][b].setName(a + "," + b);
+                botonesTablero[a][b].setBorder(BorderFactory.createLineBorder(Color.GRAY));
+                botonesTablero[a][b].setBackground(Color.LIGHT_GRAY);
+                botonesTablero[a][b].setFocusPainted(false);
                 
                 // Calcular posición del botón
-                if (i == 0 && j == 0) {
-                    botonesTablero[i][j].setBounds(posXReferencia, posYReferencia, anchoControl, altoControl);
-                } else if (i == 0 && j != 0) {
-                    botonesTablero[i][j].setBounds(
-                        botonesTablero[i][j-1].getX() + botonesTablero[i][j-1].getWidth(),
+                if (a == 0 && b == 0) {
+                    botonesTablero[a][b].setBounds(posXReferencia, posYReferencia, anchoControl, altoControl);
+                } else if (a == 0 && b != 0) {
+                    botonesTablero[a][b].setBounds(
+                        botonesTablero[a][b-1].getX() + botonesTablero[a][b-1].getWidth(),
                         posYReferencia, anchoControl, altoControl);
                 } else {
-                    botonesTablero[i][j].setBounds(
-                        botonesTablero[i-1][j].getX(),
-                        botonesTablero[i-1][j].getY() + botonesTablero[i-1][j].getHeight(),
+                    botonesTablero[a][b].setBounds(
+                        botonesTablero[a-1][b].getX(),
+                        botonesTablero[a-1][b].getY() + botonesTablero[a-1][b].getHeight(),
                         anchoControl, altoControl);
                 }
                 
                 // Agregar listeners para click izquierdo y derecho
-                final int fila = i;
-                final int columna = j;
+                final int fila = a;
+                final int columna = b;
                 
-                botonesTablero[i][j].addMouseListener(new MouseAdapter() {
+                botonesTablero[a][b].addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         if (!juegoActivo) return;
@@ -261,7 +261,7 @@ public class MinasFrame extends javax.swing.JFrame {
                     }
                 });
                 
-                getContentPane().add(botonesTablero[i][j]);
+                getContentPane().add(botonesTablero[a][b]);
             }
         }
         this.setSize(botonesTablero[numFilas-1][numColumnas-1].getX()+
