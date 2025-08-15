@@ -16,7 +16,7 @@ public class TableroJuego {
     public int CantiMinas;
     
 
-
+    
     public TableroJuego(int cantidadFilas, int cantidadColumnas, int cantidadMinas) {
         this.CantiFilas = cantidadFilas;
         this.CantiColumnas = cantidadColumnas;
@@ -31,4 +31,17 @@ public class TableroJuego {
             }
         }
     }
+    
+    public void CrearMinas(){
+        int minasCreadas = 0;
+        while (minasCreadas != CantiMinas) {
+            int ubiTemFila = (int) (Math.random() * Casillas.length);
+            int ubiTemColumna = (int) (Math.random() * Casillas[0].length);
+            if (!Casillas[ubiTemFila][ubiTemColumna].isMina()) {
+                Casillas[ubiTemFila][ubiTemColumna].setMina(true);
+                minasCreadas++;
+            }
+        }
+    }
+
 }
