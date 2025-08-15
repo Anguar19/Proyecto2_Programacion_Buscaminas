@@ -9,14 +9,15 @@ package LogicaJuego;
  * @author Anguar Alberto Rodriguez Fonseca
  */
 public class TableroJuego {
-    public int numeroFilas;
-    public int numeroColumnas;
-    public int numeroMinas;
+    public int CantiFilas;
+    public int CantiColumnas;
+    public int CantiMinas;
 
-    public TableroJuego(int numeroFilas, int numeroColumnas, int numeroMinas) {
-        this.numeroFilas = numeroFilas;
-        this.numeroColumnas = numeroColumnas;
-        this.numeroMinas = numeroMinas;
+
+    public TableroJuego(int cantidadFilas, int cantidadColumnas, int cantidadMinas) {
+        this.CantiFilas = cantidadFilas;
+        this.CantiColumnas = cantidadColumnas;
+        this.CantiMinas = cantidadMinas;
     }
     
     public void iniciarCasilla(){
